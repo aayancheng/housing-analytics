@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Housing Analytics icon</title>
+  <desc id="desc">A house outline with rising bar chart columns.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffdf9"/>
+      <stop offset="100%" stop-color="#f1e6d8"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a9eff"/>
+      <stop offset="100%" stop-color="#7bc1ff"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
+  <circle cx="394" cy="132" r="34" fill="#d4a843" opacity="0.92"/>
+  <path d="M112 238 256 130l144 108" fill="none" stroke="url(#roof)" stroke-linecap="round" stroke-linejoin="round" stroke-width="34"/>
+  <path d="M150 228v160c0 13.3 10.7 24 24 24h164c13.3 0 24-10.7 24-24V228" fill="none" stroke="#233043" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/>
+  <path d="M214 412V308h84v104" fill="none" stroke="#233043" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/>
+  <rect x="182" y="272" width="24" height="80" rx="10" fill="#4a9eff"/>
+  <rect x="228" y="246" width="24" height="106" rx="10" fill="#70c542"/>
+  <rect x="274" y="214" width="24" height="138" rx="10" fill="#e85c4a"/>
+  <path d="M324 186c15 6 25 18 31 34" fill="none" stroke="#70c542" stroke-linecap="round" stroke-width="16"/>
+</svg>
