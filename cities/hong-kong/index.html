@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Hong Kong private residential property analysis — 30 years of Class B apartment prices, three forward scenarios, and the structural forces shaping the world's least affordable housing market.">
+<meta name="theme-color" content="#f7f1e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Housing Analytics">
+<script>
+  (function() {
+    var savedTheme = null;
+    try { savedTheme = localStorage.getItem('housing-theme'); } catch (err) {}
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      document.documentElement.dataset.theme = savedTheme;
+    }
+  })();
+</script>
+<title>Hong Kong Housing — 30-Year Research Report</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="/vendor/chart.umd.js"></script>
+<style>
+  :root {
+    --bg:        #f6efe6;
+    --bg2:       #fffdf9;
+    --bg3:       #efe4d6;
+    --border:    rgba(31, 41, 55, 0.10);
+    --border2:   rgba(31, 41, 55, 0.18);
+    --text:      #1f2937;
+    --muted:     #5f6b7a;
+    --faint:     #b5bec9;
+    --hk-red:    #e85c4a;
+    --hki:       #e85c4a;
+    --kln:       #4a9eff;
+    --nt:        #70c542;
+    --base:      #4a9eff;
+    --bull:      #70c542;
+    --bear:      #e85c4a;
+    --gold:      #d4a843;
+    --shadow:    0 18px 36px rgba(31, 41, 55, 0.08);
+    --page-top:  rgba(232,92,74,0.08);
+    --page-start:#fbf6ef;
+    --page-end:  #f3ece2;
+    --hero-bg-start: rgba(255,255,255,0.88);
+    --hero-bg-end: rgba(250,244,234,0.92);
+    --hero-border: rgba(31, 41, 55, 0.08);
+    --hero-red-glow: rgba(232,92,74,0.14);
+    --hero-gold-glow: rgba(212,168,67,0.12);
+    --eyebrow:   #9e7412;
+    --control-bg: rgba(255,255,255,0.72);
+    --accent-blue-soft: rgba(74,158,255,0.12);
+    --accent-green-soft: rgba(112,197,66,0.14);
+    --accent-red-soft: rgba(232,92,74,0.12);
+    --card-shadow: 0 10px 22px rgba(31, 41, 55, 0.05);
+    --row-hover: rgba(31, 41, 55, 0.035);
+    --scroll-track: rgba(31, 41, 55, 0.06);
+    --chart-grid: rgba(31, 41, 55, 0.09);
+    --chart-tick: #526173;
+    --tooltip-bg: #fffdf9;
+    --tooltip-border: rgba(31, 41, 55, 0.12);
+    --tooltip-title: #1f2937;
+    --tooltip-body: #526173;
+    --toggle-text: var(--text);
+    --toggle-icon: "☾";
+    --serif:     'Playfair Display', Georgia, serif;
+    --sans:      'DM Sans', 'Segoe UI', sans-serif;
+    --mono:      'DM Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+
+  html[data-theme="dark"] {
+    --bg:        #0d0f12;
+    --bg2:       #141720;
+    --bg3:       #1c2030;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.13);
+    --text:      #e8e6df;
+    --muted:     #a0a6b2;
+    --faint:     #434958;
+    --shadow:    0 18px 36px rgba(0, 0, 0, 0.32);
+    --page-top:  rgba(232,92,74,0.06);
+    --page-start:#101318;
+    --page-end:  #0b0e13;
+    --hero-bg-start: rgba(22,25,34,0.92);
+    --hero-bg-end: rgba(14,17,24,0.94);
+    --hero-border: rgba(255,255,255,0.08);
+    --hero-red-glow: rgba(232,92,74,0.10);
+    --hero-gold-glow: rgba(212,168,67,0.08);
+    --eyebrow:   #d4a843;
+    --control-bg: rgba(255,255,255,0.03);
+    --accent-blue-soft: rgba(74,158,255,0.10);
+    --accent-green-soft: rgba(112,197,66,0.10);
+    --accent-red-soft: rgba(232,92,74,0.10);
+    --card-shadow: 0 10px 22px rgba(0, 0, 0, 0.20);
+    --row-hover: rgba(255,255,255,0.03);
+    --scroll-track: rgba(255,255,255,0.04);
+    --chart-grid: rgba(255,255,255,0.05);
+    --chart-tick: #9aa2af;
+    --tooltip-bg: #1c2030;
+    --tooltip-border: rgba(255,255,255,0.10);
+    --tooltip-title: #e8e6df;
+    --tooltip-body: #a0a6b2;
+    --toggle-text: #e8e6df;
+    --toggle-icon: "☀";
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; background: var(--bg); }
+
+  body {
+    background:
+      radial-gradient(circle at top right, var(--page-top), transparent 28%),
+      linear-gradient(180deg, var(--page-start) 0%, var(--bg) 28%, var(--page-end) 100%);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ─── HERO ─────────────────────────────────────── */
+  .hero {
+    padding: 56px 40px 44px;
+    max-width: 900px;
+    margin: 18px auto 0;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--hero-bg-start), var(--hero-bg-end));
+    border: 1px solid var(--hero-border);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -80px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, var(--hero-red-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    left: -110px; bottom: -140px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, var(--hero-gold-glow) 0%, transparent 72%);
+    pointer-events: none;
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--eyebrow);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 28px; height: 1px;
+    background: var(--eyebrow);
+  }
+
+  .theme-toggle {
+    min-height: 40px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--control-bg);
+    color: var(--toggle-text);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .theme-toggle:hover { border-color: var(--border2); background: var(--bg3); }
+  .theme-toggle::before { content: var(--toggle-icon); margin-right: 8px; font-size: 12px; }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .hero h1 em { color: var(--hk-red); font-style: normal; }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.65;
+    margin-bottom: 28px;
+  }
+
+  .hero-stats { display: flex; gap: 24px; flex-wrap: wrap; }
+  .hstat { display: flex; flex-direction: column; gap: 4px; min-width: 124px; }
+  .hstat-val {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .hstat-val.up   { color: var(--bull); }
+  .hstat-val.dn   { color: var(--bear); }
+  .hstat-val.gold { color: var(--gold); }
+  .hstat-val.red  { color: var(--hk-red); }
+  .hstat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ─── MAIN LAYOUT ───────────────────────────────── */
+  .main { max-width: 900px; margin: 0 auto; padding: 18px 40px 80px; }
+  .section { margin-top: 56px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-head h2 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ─── TABS ──────────────────────────────────────── */
+  .tab-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--control-bg);
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+  }
+  .tab-btn:hover { border-color: var(--border2); color: var(--text); }
+  .tab-btn.active   { background: var(--text); border-color: var(--text); color: #fff; }
+  .tab-btn.hki-active { border-color: var(--hki); color: #b33a2d; background: var(--accent-red-soft); }
+  .tab-btn.kln-active { border-color: var(--kln); color: #1c56a9; background: var(--accent-blue-soft); }
+  .tab-btn.nt-active  { border-color: var(--nt);  color: #3c7b15; background: var(--accent-green-soft); }
+
+  /* ─── CHART ─────────────────────────────────────── */
+  .chart-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    box-shadow: var(--shadow);
+  }
+  .chart-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .leg-item { display: flex; align-items: center; gap: 7px; color: var(--muted); }
+  .leg-line { width: 20px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+  .leg-bar  { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+  .chart-wrap { position: relative; width: 100%; height: 380px; }
+  .chart-note { margin-top: 12px; font-size: 11px; color: var(--muted); font-style: italic; }
+
+  /* ─── SCENARIO CONTROLS ─────────────────────────── */
+  .scenario-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0 16px;
+    flex-wrap: wrap;
+  }
+  .scenario-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  .sc-btn {
+    min-height: 44px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--control-bg);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sc-btn:hover { border-color: var(--border2); color: var(--text); }
+  .sc-btn.sc-base.active { border-color: var(--base); color: #1c56a9; background: var(--accent-blue-soft); }
+  .sc-btn.sc-bull.active { border-color: var(--bull); color: #3c7b15; background: var(--accent-green-soft); }
+  .sc-btn.sc-bear.active { border-color: var(--bear); color: #b33a2d; background: var(--accent-red-soft); }
+
+  /* ─── METRICS GRID ──────────────────────────────── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .metric-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+    box-shadow: var(--card-shadow);
+  }
+  .metric-card:hover { border-color: var(--border2); }
+  .mc-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .mc-val {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .mc-val.up { color: var(--bull); }
+  .mc-val.dn { color: var(--bear); }
+  .mc-val.gold { color: var(--gold); }
+  .mc-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ─── TABLE ─────────────────────────────────────── */
+  .yr-table-wrap {
+    position: relative;
+    overflow-x: auto;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg2);
+    box-shadow: var(--shadow);
+  }
+  table.yr-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 620px;
+  }
+  .yr-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .yr-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    vertical-align: top;
+  }
+  .yr-table td:first-child { color: var(--text); font-weight: 500; }
+  .yr-table td.price { color: var(--text); font-family: var(--mono); font-size: 12px; }
+  .yr-table tr:last-child td { border-bottom: none; }
+  .yr-table tr:hover td { background: var(--row-hover); }
+  .chg-up   { color: var(--bull); font-family: var(--mono); font-size: 12px; }
+  .chg-dn   { color: var(--bear); font-family: var(--mono); font-size: 12px; }
+  .yr-note  { font-size: 11px; color: var(--muted); }
+  .era-badge {
+    font-size: 9px;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  /* ─── VERDICT BOX ────────────────────────────────── */
+  .verdict-box {
+    border-radius: 8px;
+    border: 1px solid var(--faint);
+    padding: 18px 20px;
+    margin: 20px 0;
+    transition: border-color 0.3s;
+  }
+  .verdict-box.v-base { border-color: rgba(74,158,255,0.3); background: rgba(74,158,255,0.04); }
+  .verdict-box.v-bull { border-color: rgba(112,197,66,0.3); background: rgba(112,197,66,0.04); }
+  .verdict-box.v-bear { border-color: rgba(232,92,74,0.3); background: rgba(232,92,74,0.04); }
+  .vb-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .vb-label.v-base { color: var(--base); }
+  .vb-label.v-bull { color: var(--bull); }
+  .vb-label.v-bear { color: var(--bear); }
+  .vb-text { font-size: 13px; color: var(--muted); line-height: 1.65; }
+  .vb-text strong { color: var(--text); font-weight: 500; }
+
+  /* ─── DISTRICT TABLE ─────────────────────────────── */
+  .district-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .district-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .district-card.hki-card { border-top: 2px solid var(--hki); }
+  .district-card.kln-card { border-top: 2px solid var(--kln); }
+  .district-card.nt-card  { border-top: 2px solid var(--nt);  }
+  .dc-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .dc-label.hki { color: var(--hki); }
+  .dc-label.kln { color: var(--kln); }
+  .dc-label.nt  { color: var(--nt);  }
+  .dc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+  .dc-row:last-child { border-bottom: none; }
+  .dc-yr    { font-size: 12px; color: var(--muted); }
+  .dc-price { font-family: var(--mono); font-size: 12px; color: var(--text); }
+  .dc-era   { font-size: 10px; color: var(--faint); font-style: italic; }
+
+  /* ─── AFFORDABILITY CALLOUT ──────────────────────── */
+  .afford-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 24px 0 0;
+    box-shadow: var(--card-shadow);
+  }
+  .afford-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .afford-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .afford-item { display: flex; flex-direction: column; gap: 3px; }
+  .afford-city { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .afford-ratio { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--text); }
+  .afford-ratio.worst { color: var(--bear); }
+  .afford-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  /* ─── DRIVERS ────────────────────────────────────── */
+  .drivers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .driver-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+    box-shadow: var(--card-shadow);
+  }
+  .driver-card:hover { border-color: var(--border2); }
+  .driver-card.tail    { border-left: 2px solid var(--bull); }
+  .driver-card.head    { border-left: 2px solid var(--bear); }
+  .driver-card.neutral { border-left: 2px solid var(--gold); }
+  .d-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .d-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .d-badge.tail    { background: rgba(112,197,66,0.12); color: var(--bull); }
+  .d-badge.head    { background: rgba(232,92,74,0.12);  color: var(--bear); }
+  .d-badge.neutral { background: rgba(212,168,67,0.12); color: var(--gold); }
+  .d-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .d-body  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ─── EVENTS ─────────────────────────────────────── */
+  .events-list { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+  .event-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.18s;
+    box-shadow: var(--card-shadow);
+  }
+  .event-row:hover { border-color: var(--border2); }
+  .ev-yr {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 2px;
+    min-width: 80px;
+  }
+  .ev-badge {
+    font-size: 9px;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    white-space: nowrap;
+  }
+  .ev-text { font-size: 12px; color: var(--muted); line-height: 1.55; flex: 1; }
+  .ev-text strong { color: var(--text); font-weight: 500; }
+
+  /* ─── CURRENCY NOTE ─────────────────────────────── */
+  .currency-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  /* ─── SOURCE NOTE ────────────────────────────────── */
+  .source-note {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ─── SCROLLBAR ──────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--scroll-track); }
+  ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 3px; }
+
+  /* ─── RESPONSIVE ─────────────────────────────────── */
+  @media (max-width: 640px) {
+    .hero, .main { padding-left: 20px; padding-right: 20px; }
+    .hero { margin-top: 10px; padding-top: 32px; padding-bottom: 32px; border-radius: 20px; }
+    .hero h1 { font-size: clamp(30px, 9vw, 38px); margin-bottom: 12px; }
+    .hero-top { align-items: stretch; flex-direction: column; gap: 10px; }
+    .theme-toggle { align-self: flex-start; }
+    .hero-sub { font-size: 15px; margin-bottom: 22px; }
+    .main { padding-top: 12px; padding-bottom: 64px; }
+    .section { margin-top: 42px; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .drivers-grid, .district-grid { grid-template-columns: 1fr; }
+    .afford-grid { grid-template-columns: 1fr 1fr; }
+    .chart-wrap { height: 320px; }
+    .hero-stats { gap: 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 18px;
+    }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero > * { animation: fadeUp 0.55s ease both; }
+  .hero > *:nth-child(1) { animation-delay: 0.0s; }
+  .hero > *:nth-child(2) { animation-delay: 0.08s; }
+  .hero > *:nth-child(3) { animation-delay: 0.16s; }
+  .hero > *:nth-child(4) { animation-delay: 0.24s; }
+  .hero > *:nth-child(5) { animation-delay: 0.32s; }
+</style>
+</head>
+<body>
+
+<!-- ══════ HERO ══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-top">
+    <div class="hero-eyebrow">SAR China · Class B Apartments · 30-Year Research Report</div>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">Dark Mode</button>
+  </div>
+  <h1><em>Hong Kong</em><br>Housing Market Analysis</h1>
+  <p class="hero-sub">The world's least affordable housing market — a 30-year examination of Class B apartment prices from the 1997 handover crash through SARS, the cooling-duty era, social unrest, and the current rate-driven correction, with three forward scenarios to 2030.</p>
+  <div class="hero-stats">
+    <div class="hstat">
+      <span class="hstat-val red">#1</span>
+      <span class="hstat-label">Demographia 2025 — least affordable globally</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val">HK$9.0M</span>
+      <span class="hstat-label">2018 all-time high (500 sqft Class B)</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val gold">HK$6.15M</span>
+      <span class="hstat-label">2025 current · US$789K at 7.80 peg</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val dn">−31.7%</span>
+      <span class="hstat-label">Correction from 2018 peak</span>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+
+  <!-- ══════ CHART ══════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>30-Year Price History &amp; Scenarios</h2>
+      <span class="section-tag">1995–2030</span>
+    </div>
+
+    <span class="currency-note">Prices in HKD · USD equivalent at HK$7.80 peg · Standard 500 sqft (46 sqm) Class B unit</span>
+
+    <div class="tab-row" id="districtTabs">
+      <button class="tab-btn active"    onclick="setDistrict('all', this)">All Districts</button>
+      <button class="tab-btn"           onclick="setDistrict('hki', this)">HK Island</button>
+      <button class="tab-btn"           onclick="setDistrict('kln', this)">Kowloon</button>
+      <button class="tab-btn"           onclick="setDistrict('nt', this)">New Territories</button>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-legend">
+        <span class="leg-item"><span class="leg-bar" style="background:rgba(74,158,255,0.4)" id="legendBar"></span><span id="legendLabel">Class B historical</span></span>
+        <span class="leg-item"><span class="leg-line" style="background:var(--base)"></span>Base forecast</span>
+        <span class="leg-item"><span class="leg-line" style="background:var(--bull)"></span>Bull</span>
+        <span class="leg-item"><span class="leg-line" style="background:var(--bear)"></span>Bear</span>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      <p class="chart-note">Historical data: RVD Private Domestic Price Index (Class B, 40–69.9 sqm) calibrated to Centaline CCL. District series derived from composite using long-run premium/discount ratios. Forecasts: scenario analysis based on Cushman &amp; Wakefield HK 2026 Outlook, CBRE HK 2026, Morgan Stanley. Not financial advice.</p>
+    </div>
+  </section>
+
+  <!-- ══════ SCENARIOS ══════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Class B Apartment — 5-Year Scenarios</h2>
+      <span class="section-tag">2026–2030</span>
+    </div>
+
+    <div class="scenario-bar">
+      <span class="scenario-label">Scenario:</span>
+      <button class="sc-btn sc-base active" onclick="setScenario('base', this)">Base Case</button>
+      <button class="sc-btn sc-bull"        onclick="setScenario('bull', this)">Bull Case</button>
+      <button class="sc-btn sc-bear"        onclick="setScenario('bear', this)">Bear Case</button>
+    </div>
+
+    <div class="metrics-grid" id="scenarioMetrics"></div>
+
+    <div class="yr-table-wrap">
+      <table class="yr-table" id="scenarioTable"></table>
+    </div>
+
+    <div id="scenarioVerdict"></div>
+  </section>
+
+  <!-- ══════ DISTRICT COMPARISON ═══════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>District Price Comparison</h2>
+      <span class="section-tag">HK Island · Kowloon · New Territories</span>
+    </div>
+    <div class="district-grid" id="districtGrid"></div>
+  </section>
+
+  <!-- ══════ AFFORDABILITY CALLOUT ════════════════ -->
+  <div class="afford-box">
+    <div class="afford-label">↗ Cross-city preview — price-to-income ratio (Demographia 2025)</div>
+    <div class="afford-grid">
+      <div class="afford-item">
+        <span class="afford-city">Hong Kong</span>
+        <span class="afford-ratio worst">16.7×</span>
+      </div>
+      <div class="afford-item">
+        <span class="afford-city">Vancouver</span>
+        <span class="afford-ratio">12.3×</span>
+      </div>
+      <div class="afford-item">
+        <span class="afford-city">Toronto</span>
+        <span class="afford-ratio">9.3×</span>
+      </div>
+      <div class="afford-item">
+        <span class="afford-city">Tokyo</span>
+        <span class="afford-ratio">7.5×</span>
+      </div>
+    </div>
+    <p class="afford-note">Years of gross median household income required to purchase a median-priced home. Full cross-city comparison page coming soon.</p>
+  </div>
+
+  <!-- ══════ KEY EVENTS ══════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Market History — Key Turning Points</h2>
+      <span class="section-tag">1994–2025</span>
+    </div>
+    <div class="events-list" id="eventsList"></div>
+  </section>
+
+  <!-- ══════ DRIVERS ════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Structural Drivers &amp; Headwinds</h2>
+      <span class="section-tag">Next 5 years</span>
+    </div>
+    <div class="drivers-grid" id="driversGrid"></div>
+  </section>
+
+  <!-- ══════ SOURCE NOTE ════════════════════════════ -->
+  <div class="source-note">
+    <strong>Data sources:</strong> Hong Kong Rating and Valuation Department (RVD) — Private Domestic Price Index (Class B, 40–69.9 sqm) · Centaline Property Agency — Centa-City Leading Index (CCL, base July 1997 = 100) · Demographia International Housing Affordability Survey (2025) · NUMBEO Property Investment Index · Cushman &amp; Wakefield Hong Kong 2026 Residential Outlook · CBRE Hong Kong Market Outlook 2026 · GlobalPropertyGuide Hong Kong price history · South China Morning Post property data · HKMA mortgage statistics. District series (HK Island, Kowloon, New Territories) derived from composite using historical RVD district premium/discount ratios. All prices in HKD for a standard 500 sqft (46 sqm) Class B unit. USD equivalent at HKD 7.80 = USD 1.00 (HKMA peg). All forecasts are scenarios, not financial advice. Compiled April 2026.
+  </div>
+
+</main>
+
+<script type="module">
+import { HIST_YEARS, HIST_PRICES, SCENARIOS, COMPARE_ROWS, EVENTS, DRIVERS, CITY_META } from '/shared/data/hong-kong.js?v=2';
+import { buildChart } from '/shared/js/chart-utils.js';
+
+// ── STATE ────────────────────────────────────────────
+let currentDistrict = 'all';
+let currentScenario = 'base';
+let mainChart = null;
+let currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+
+// District display config
+const DISTRICT_CONFIG = {
+  all: { label: 'All Districts',    ratio: 1.00, color: 'rgba(74,158,255,0.35)',  barId: 'legendBar', cls: '' },
+  hki: { label: 'HK Island',        ratio: 1.30, color: 'rgba(232,92,74,0.40)',   barId: 'legendBar', cls: 'hki-active' },
+  kln: { label: 'Kowloon',          ratio: 1.01, color: 'rgba(74,158,255,0.35)',  barId: 'legendBar', cls: 'kln-active' },
+  nt:  { label: 'New Territories',  ratio: 0.74, color: 'rgba(112,197,66,0.35)', barId: 'legendBar', cls: 'nt-active' },
+};
+
+function formatHKD(hkd) {
+  if (hkd === null || hkd === undefined) return '';
+  const m = hkd / 1_000_000;
+  return `HK$${m.toFixed(2).replace(/\.?0+$/, '')}M`;
+}
+
+function formatUSD(hkd) {
+  const usd = Math.round(hkd / 7.8 / 1000) * 1000;
+  return `US$${(usd / 1_000_000).toFixed(2).replace(/\.?0+$/, '')}M`;
+}
+
+// ── THEME ────────────────────────────────────────────
+function updateThemeButton() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const nextTheme = currentTheme === 'dark' ? 'Light' : 'Dark';
+  btn.textContent = `${nextTheme} Mode`;
+  btn.setAttribute('aria-pressed', String(currentTheme === 'dark'));
+  btn.setAttribute('aria-label', `Switch to ${nextTheme.toLowerCase()} mode`);
+}
+
+function updateThemeMeta() {
+  const m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.setAttribute('content', currentTheme === 'dark' ? '#0d0f12' : '#f7f1e8');
+}
+
+function applyTheme(theme) {
+  currentTheme = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = currentTheme;
+  try { localStorage.setItem('housing-theme', currentTheme); } catch (e) {}
+  updateThemeMeta();
+  updateThemeButton();
+  if (mainChart) buildMainChart();
+}
+
+// ── CHART ────────────────────────────────────────────
+function buildMainChart() {
+  if (mainChart) { mainChart.destroy(); mainChart = null; }
+
+  const allLabels = HIST_YEARS.map(String).concat(['2026','2027','2028','2029','2030']);
+  const hLen = HIST_YEARS.length;
+  const cfg = DISTRICT_CONFIG[currentDistrict];
+
+  // Historical bars (district-adjusted)
+  const histData = new Array(allLabels.length).fill(null);
+  HIST_PRICES.forEach((v, i) => { histData[i] = Math.round(v * cfg.ratio); });
+
+  // Forecast lines per scenario
+  function forecastLine(sc) {
+    const arr = new Array(allLabels.length).fill(null);
+    const src = currentDistrict === 'hki'
+      ? SCENARIOS[sc].hki
+      : SCENARIOS[sc].price.map(p => Math.round(p * cfg.ratio));
+    src.forEach((p, i) => { arr[hLen - 1 + i] = p; });
+    return arr;
+  }
+
+  const datasets = [
+    {
+      type: 'bar',
+      label: `${cfg.label} Class B historical`,
+      data: histData,
+      backgroundColor: cfg.color,
+      borderRadius: 2,
+      borderSkipped: false,
+      order: 3,
+    },
+    {
+      type: 'line', label: 'Base forecast',  data: forecastLine('base'),
+      borderColor: '#4a9eff', backgroundColor: 'transparent', tension: 0.3, order: 1,
+      borderWidth: currentScenario === 'base' ? 2.5 : 1,
+      pointRadius: currentScenario === 'base' ? 3 : 2,
+      borderDash: currentScenario === 'base' ? [] : [6, 4],
+    },
+    {
+      type: 'line', label: 'Bull forecast',  data: forecastLine('bull'),
+      borderColor: '#70c542', backgroundColor: 'transparent', tension: 0.3, order: 1,
+      borderWidth: currentScenario === 'bull' ? 2.5 : 1,
+      pointRadius: currentScenario === 'bull' ? 3 : 2,
+      borderDash: currentScenario === 'bull' ? [] : [6, 4],
+    },
+    {
+      type: 'line', label: 'Bear forecast',  data: forecastLine('bear'),
+      borderColor: '#e85c4a', backgroundColor: 'transparent', tension: 0.3, order: 1,
+      borderWidth: currentScenario === 'bear' ? 2.5 : 1,
+      pointRadius: currentScenario === 'bear' ? 3 : 2,
+      borderDash: currentScenario === 'bear' ? [] : [6, 4],
+    },
+  ];
+
+  // Update legend bar colour
+  const legendBar = document.getElementById('legendBar');
+  if (legendBar) legendBar.style.background = cfg.color;
+  const legendLabel = document.getElementById('legendLabel');
+  if (legendLabel) legendLabel.textContent = `${cfg.label} historical`;
+
+  mainChart = buildChart(document.getElementById('mainChart'), datasets, {
+    labels: allLabels,
+    scales: { y: { min: 1000000 } },
+  });
+}
+
+// ── SCENARIO SECTION ─────────────────────────────────
+function buildScenarioSection(sc) {
+  const S = SCENARIOS[sc];
+
+  document.getElementById('scenarioMetrics').innerHTML = S.metrics.map(m => `
+    <div class="metric-card">
+      <div class="mc-label">${m.label}</div>
+      <div class="mc-val ${m.cls}">${m.val}</div>
+      <div class="mc-sub">${m.sub}</div>
+    </div>`).join('');
+
+  document.getElementById('scenarioTable').innerHTML = `
+    <thead><tr>
+      <th>Year</th>
+      <th>Overall Class B</th>
+      <th>HK Island</th>
+      <th>YoY</th>
+      <th>Phase</th>
+      <th>Key driver</th>
+    </tr></thead>
+    <tbody>${S.rows.map((r, i) => `
+      <tr>
+        <td>${r.yr}</td>
+        <td class="price">${r.price} <span style="font-size:10px;color:var(--muted)">(${formatUSD(S.price[i+1])})</span></td>
+        <td class="price" style="color:var(--hki)">${formatHKD(S.hki[i+1])}</td>
+        <td class="${r.cls === 'up' ? 'chg-up' : 'chg-dn'}">${r.yoy}</td>
+        <td><span class="era-badge" style="background:rgba(31,41,55,0.06);color:var(--muted)">${r.phase}</span></td>
+        <td class="yr-note">${r.driver}</td>
+      </tr>`).join('')}
+    </tbody>`;
+
+  document.getElementById('scenarioVerdict').innerHTML = `
+    <div class="verdict-box ${S.cls}">
+      <div class="vb-label ${S.cls}">${S.label} — Analyst Verdict</div>
+      <div class="vb-text">${S.verdict}</div>
+    </div>`;
+}
+
+// ── DISTRICT COMPARISON ───────────────────────────────
+function buildDistrictComparison() {
+  const districts = [
+    { key: 'hki', label: 'HK Island',       cls: 'hki-card', lcls: 'hki' },
+    { key: 'kln', label: 'Kowloon',          cls: 'kln-card', lcls: 'kln' },
+    { key: 'nt',  label: 'New Territories',  cls: 'nt-card',  lcls: 'nt'  },
+  ];
+
+  document.getElementById('districtGrid').innerHTML = districts.map(d => `
+    <div class="district-card ${d.cls}">
+      <div class="dc-label ${d.lcls}">${d.label} — Class B avg</div>
+      ${COMPARE_ROWS.map(r => `
+        <div class="dc-row">
+          <span class="dc-yr">${r.yr}</span>
+          <span class="dc-price">${formatHKD(r[d.key])}</span>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+// ── EVENTS ────────────────────────────────────────────
+function buildEvents() {
+  document.getElementById('eventsList').innerHTML = EVENTS.map(e => `
+    <div class="event-row">
+      <span class="ev-yr">${e.yr}</span>
+      <span class="ev-badge" style="background:${e.bg};color:${e.color}">${e.badge}</span>
+      <span class="ev-text">${e.text}</span>
+    </div>`).join('');
+}
+
+// ── DRIVERS ───────────────────────────────────────────
+function buildDrivers() {
+  document.getElementById('driversGrid').innerHTML = DRIVERS.map(d => `
+    <div class="driver-card ${d.type}">
+      <div class="d-head">
+        <span class="d-badge ${d.type}">${d.badge}</span>
+        <span class="d-title">${d.title}</span>
+      </div>
+      <div class="d-body">${d.body}</div>
+    </div>`).join('');
+}
+
+// ── INTERACTIONS ──────────────────────────────────────
+window.setDistrict = function(district, btn) {
+  currentDistrict = district;
+  document.querySelectorAll('#districtTabs .tab-btn').forEach(b => {
+    b.classList.remove('active', 'hki-active', 'kln-active', 'nt-active');
+  });
+  const cfg = DISTRICT_CONFIG[district];
+  if (cfg.cls) btn.classList.add(cfg.cls);
+  else btn.classList.add('active');
+  buildMainChart();
+};
+
+window.setScenario = function(sc, btn) {
+  currentScenario = sc;
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildScenarioSection(sc);
+  buildMainChart();
+};
+
+// ── INIT ──────────────────────────────────────────────
+buildMainChart();
+buildScenarioSection('base');
+buildDistrictComparison();
+buildEvents();
+buildDrivers();
+updateThemeMeta();
+updateThemeButton();
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+});
+
+window.addEventListener('load', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.error('Service worker registration failed:', err);
+    });
+  }
+});
+</script>
+</body>
+</html>

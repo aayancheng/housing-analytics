@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Toronto housing market analytics — coming soon. GTA submarket breakdown, affordability index, policy timeline, and price-to-rent analysis.">
+<meta name="theme-color" content="#f7f1e8">
+<script>
+  (function() {
+    var t = null;
+    try { t = localStorage.getItem('housing-theme'); } catch (e) {}
+    if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+  })();
+</script>
+<title>Toronto Housing — Coming Soon · Housing Analytics</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f6efe6;
+    --bg2:       #fffdf9;
+    --bg3:       #efe4d6;
+    --border:    rgba(31,41,55,0.10);
+    --border2:   rgba(31,41,55,0.18);
+    --text:      #1f2937;
+    --muted:     #5f6b7a;
+    --faint:     #b5bec9;
+    --gold:      #d4a843;
+    --bull:      #70c542;
+    --bear:      #e85c4a;
+    --accent:    #d4a843;
+    --shadow:    0 18px 36px rgba(31,41,55,0.08);
+    --card-shadow: 0 10px 22px rgba(31,41,55,0.05);
+    --page-top:  rgba(212,168,67,0.10);
+    --hero-bg-start: rgba(255,255,255,0.88);
+    --hero-bg-end: rgba(250,244,234,0.92);
+    --hero-border: rgba(31,41,55,0.08);
+    --hero-glow:  rgba(212,168,67,0.14);
+    --eyebrow:   #9e7412;
+    --control-bg: rgba(255,255,255,0.72);
+    --scroll-track: rgba(31,41,55,0.06);
+    --nav-bg:    rgba(246,239,230,0.92);
+    --toggle-text: var(--text);
+    --toggle-icon: "☾";
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans:  'DM Sans', 'Segoe UI', sans-serif;
+    --mono:  'DM Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+  html[data-theme="dark"] {
+    --bg:        #0d0f12;
+    --bg2:       #141720;
+    --bg3:       #1c2030;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.13);
+    --text:      #e8e6df;
+    --muted:     #a0a6b2;
+    --faint:     #434958;
+    --shadow:    0 18px 36px rgba(0,0,0,0.32);
+    --card-shadow: 0 10px 22px rgba(0,0,0,0.20);
+    --page-top:  rgba(212,168,67,0.07);
+    --hero-bg-start: rgba(22,25,34,0.92);
+    --hero-bg-end: rgba(14,17,24,0.94);
+    --hero-border: rgba(255,255,255,0.08);
+    --hero-glow:  rgba(212,168,67,0.08);
+    --eyebrow:   #d4a843;
+    --control-bg: rgba(255,255,255,0.03);
+    --scroll-track: rgba(255,255,255,0.04);
+    --nav-bg:    rgba(13,15,18,0.94);
+    --toggle-text: #e8e6df;
+    --toggle-icon: "☀";
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; background: var(--bg); }
+  body {
+    background:
+      radial-gradient(circle at top right, var(--page-top), transparent 28%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg) 100%);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ─── NAV ───────────────────────────────────────── */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--nav-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+  .nav-brand {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+    margin-right: auto;
+  }
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 4px;
+  }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--border); }
+  .nav-links a.active {
+    color: var(--gold);
+    background: rgba(212,168,67,0.10);
+  }
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  @media (max-width: 768px) {
+    .nav-inner { padding: 0 20px; }
+    .nav-hamburger { display: flex; }
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 52px;
+      left: 0; right: 0;
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      padding: 12px 20px 16px;
+      gap: 2px;
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { font-size: 11px; padding: 8px 12px; }
+  }
+
+  /* ─── HERO ─────────────────────────────────────── */
+  .hero {
+    padding: 56px 40px 44px;
+    max-width: 900px;
+    margin: 18px auto 0;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--hero-bg-start), var(--hero-bg-end));
+    border: 1px solid var(--hero-border);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -80px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, var(--hero-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 0;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--eyebrow);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 28px; height: 1px;
+    background: var(--eyebrow);
+  }
+  .theme-toggle {
+    min-height: 40px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--control-bg);
+    color: var(--toggle-text);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover { border-color: var(--border2); background: var(--bg3); }
+  .theme-toggle::before { content: var(--toggle-icon); margin-right: 8px; font-size: 12px; }
+
+  .hero-title-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(36px, 6vw, 54px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    color: var(--text);
+  }
+  .coming-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(212,168,67,0.14);
+    color: var(--gold);
+    border: 1px solid rgba(212,168,67,0.25);
+    white-space: nowrap;
+    align-self: center;
+  }
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 580px;
+    line-height: 1.65;
+    margin-bottom: 0;
+  }
+
+  /* ─── MAIN ──────────────────────────────────────── */
+  .main { max-width: 900px; margin: 0 auto; padding: 40px 40px 80px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-head h2 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ─── PLACEHOLDER CHART ─────────────────────────── */
+  .chart-placeholder {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chart-placeholder-bars {
+    position: absolute;
+    bottom: 24px; left: 24px; right: 24px;
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    opacity: 0.18;
+  }
+  .ph-bar {
+    flex: 1;
+    background: var(--accent);
+    border-radius: 3px 3px 0 0;
+    min-height: 20px;
+  }
+  .chart-placeholder-overlay {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+  }
+  .chart-placeholder-overlay .ph-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+    opacity: 0.4;
+  }
+  .chart-placeholder-overlay p {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ─── TEASER GRID ───────────────────────────────── */
+  .teaser-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .teaser-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.2s;
+  }
+  .teaser-card:hover { border-color: var(--border2); }
+  .teaser-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .teaser-title {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 7px;
+    line-height: 1.3;
+  }
+  .teaser-body {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ─── BACK LINK ─────────────────────────────────── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 48px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--text); }
+
+  /* ─── SCROLLBAR ──────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--scroll-track); }
+  ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 3px; }
+
+  /* ─── RESPONSIVE ─────────────────────────────────── */
+  @media (max-width: 640px) {
+    .hero, .main { padding-left: 20px; padding-right: 20px; }
+    .hero { margin-top: 10px; padding-top: 32px; padding-bottom: 32px; border-radius: 20px; }
+    .hero h1 { font-size: clamp(32px, 9vw, 42px); }
+    .teaser-grid { grid-template-columns: 1fr; }
+    .main { padding-top: 28px; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero > * { animation: fadeUp 0.55s ease both; }
+  .hero > *:nth-child(1) { animation-delay: 0.0s; }
+  .hero > *:nth-child(2) { animation-delay: 0.08s; }
+  .hero > *:nth-child(3) { animation-delay: 0.16s; }
+</style>
+</head>
+<body>
+
+<!-- ══════ NAV ════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="/">Housing Analytics</a>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/cities/markham-rh/">Markham &amp; RH</a></li>
+      <li><a href="/cities/hong-kong/">Hong Kong</a></li>
+      <li><a href="/cities/toronto/" class="active">Toronto</a></li>
+      <li><a href="/cities/vancouver/">Vancouver</a></li>
+      <li><a href="/cities/tokyo/">Tokyo</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══════ HERO ══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-top">
+    <div class="hero-eyebrow">Ontario · Canada · GTA &amp; 905 Region</div>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">Dark Mode</button>
+  </div>
+  <div class="hero-title-row">
+    <h1>Toronto</h1>
+    <span class="coming-badge">In Progress</span>
+  </div>
+  <p class="hero-sub">Full GTA analytics page in development — covering 30 years of detached and condo prices across the 416 and 905 regions, policy event overlays, and the affordability gap story.</p>
+</section>
+
+<!-- ══════ MAIN ═══════════════════════════════════════ -->
+<main class="main">
+
+  <div class="section-head">
+    <h2>30-Year Price Chart</h2>
+    <span class="section-tag">Data in progress</span>
+  </div>
+
+  <div class="chart-placeholder">
+    <div class="chart-placeholder-bars">
+      <div class="ph-bar" style="height:28%"></div>
+      <div class="ph-bar" style="height:30%"></div>
+      <div class="ph-bar" style="height:32%"></div>
+      <div class="ph-bar" style="height:34%"></div>
+      <div class="ph-bar" style="height:35%"></div>
+      <div class="ph-bar" style="height:38%"></div>
+      <div class="ph-bar" style="height:40%"></div>
+      <div class="ph-bar" style="height:43%"></div>
+      <div class="ph-bar" style="height:42%"></div>
+      <div class="ph-bar" style="height:45%"></div>
+      <div class="ph-bar" style="height:50%"></div>
+      <div class="ph-bar" style="height:55%"></div>
+      <div class="ph-bar" style="height:62%"></div>
+      <div class="ph-bar" style="height:60%"></div>
+      <div class="ph-bar" style="height:65%"></div>
+      <div class="ph-bar" style="height:72%"></div>
+      <div class="ph-bar" style="height:78%"></div>
+      <div class="ph-bar" style="height:75%"></div>
+      <div class="ph-bar" style="height:80%"></div>
+      <div class="ph-bar" style="height:90%"></div>
+      <div class="ph-bar" style="height:100%"></div>
+      <div class="ph-bar" style="height:85%"></div>
+      <div class="ph-bar" style="height:80%"></div>
+      <div class="ph-bar" style="height:76%"></div>
+      <div class="ph-bar" style="height:72%"></div>
+    </div>
+    <div class="chart-placeholder-overlay">
+      <div class="ph-icon">📊</div>
+      <p>Chart data being compiled</p>
+    </div>
+  </div>
+
+  <div class="section-head" style="margin-top:48px;">
+    <h2>Planned Analytics</h2>
+    <span class="section-tag">4 features</span>
+  </div>
+
+  <div class="teaser-grid">
+
+    <div class="teaser-card">
+      <div class="teaser-num">Feature 01</div>
+      <div class="teaser-title">Full GTA Submarket Breakdown</div>
+      <div class="teaser-body">All major GTA submarkets on one comparative chart — 416 (Toronto proper) vs 905 regions (Mississauga, Brampton, Vaughan, Ajax, Whitby). See where the premium concentrates and how the gap has evolved since 2005.</div>
+    </div>
+
+    <div class="teaser-card">
+      <div class="teaser-num">Feature 02</div>
+      <div class="teaser-title">Affordability Index</div>
+      <div class="teaser-body">Percentage of median household income required to service the mortgage on a median detached home — tracked annually from 1995 to 2025. The defining story of Toronto housing: incomes grew 60%, prices grew 400%.</div>
+    </div>
+
+    <div class="teaser-card">
+      <div class="teaser-num">Feature 03</div>
+      <div class="teaser-title">Policy Event Overlay</div>
+      <div class="teaser-body">Every major policy intervention annotated directly on the 30-year chart: OSFI stress test B-20 (2018), Ontario Non-Resident Speculation Tax (2017), federal foreign buyer ban (2023), First Home Savings Account. See what moved the market and what didn't.</div>
+    </div>
+
+    <div class="teaser-card">
+      <div class="teaser-num">Feature 04</div>
+      <div class="teaser-title">Price-to-Rent Yield by Property Type</div>
+      <div class="teaser-body">Detached vs semi-detached vs condo — gross rental yield and price-to-rent ratio tracked over time. The condo collapse of 2023–24 (77% of investors cash-flow negative) vs the relative resilience of detached. Where does fundamental value lie?</div>
+    </div>
+
+  </div>
+
+  <a class="back-link" href="/">← Back to all markets</a>
+
+</main>
+
+<script type="module">
+  let currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+
+  function updateThemeButton() {
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    const next = currentTheme === 'dark' ? 'Light' : 'Dark';
+    btn.textContent = `${next} Mode`;
+    btn.setAttribute('aria-pressed', String(currentTheme === 'dark'));
+  }
+
+  function applyTheme(theme) {
+    currentTheme = theme;
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('housing-theme', theme); } catch (e) {}
+    const m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', theme === 'dark' ? '#0d0f12' : '#f7f1e8');
+    updateThemeButton();
+  }
+
+  updateThemeButton();
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  });
+
+  const hamburger = document.getElementById('navHamburger');
+  const navLinks  = document.getElementById('navLinks');
+  hamburger.addEventListener('click', () => {
+    const open = navLinks.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', String(open));
+  });
+</script>
+</body>
+</html>

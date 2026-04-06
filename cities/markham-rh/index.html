@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A data-driven housing market research report covering Markham and Richmond Hill detached home prices from 1995 to 2030.">
+<meta name="theme-color" content="#f7f1e8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Housing Analytics">
+<script>
+  (function() {
+    var savedTheme = null;
+    try {
+      savedTheme = localStorage.getItem('housing-theme');
+    } catch (err) {}
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      document.documentElement.dataset.theme = savedTheme;
+    }
+  })();
+</script>
+<title>York Region Detached — 30-Year Research Report</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="/vendor/chart.umd.js"></script>
+<style>
+  :root {
+    --bg:        #f6efe6;
+    --bg2:       #fffdf9;
+    --bg3:       #efe4d6;
+    --border:    rgba(31, 41, 55, 0.10);
+    --border2:   rgba(31, 41, 55, 0.18);
+    --text:      #1f2937;
+    --muted:     #5f6b7a;
+    --faint:     #b5bec9;
+    --markham:   #4a9eff;
+    --rh:        #70c542;
+    --base:      #4a9eff;
+    --bull:      #70c542;
+    --bear:      #e85c4a;
+    --gold:      #d4a843;
+    --shadow:    0 18px 36px rgba(31, 41, 55, 0.08);
+    --page-top:  rgba(74,158,255,0.10);
+    --page-start:#fbf6ef;
+    --page-end:  #f3ece2;
+    --hero-bg-start: rgba(255,255,255,0.88);
+    --hero-bg-end: rgba(250,244,234,0.92);
+    --hero-border: rgba(31, 41, 55, 0.08);
+    --hero-blue-glow: rgba(74,158,255,0.16);
+    --hero-gold-glow: rgba(212,168,67,0.12);
+    --eyebrow:   #9e7412;
+    --control-bg: rgba(255,255,255,0.72);
+    --accent-blue-soft: rgba(74,158,255,0.12);
+    --accent-green-soft: rgba(112,197,66,0.14);
+    --accent-red-soft: rgba(232,92,74,0.12);
+    --card-shadow: 0 10px 22px rgba(31, 41, 55, 0.05);
+    --row-hover: rgba(31, 41, 55, 0.035);
+    --scroll-track: rgba(31, 41, 55, 0.06);
+    --neutral-badge-bg: rgba(31,41,55,0.06);
+    --chart-grid: rgba(31, 41, 55, 0.09);
+    --chart-tick: #526173;
+    --tooltip-bg: #fffdf9;
+    --tooltip-border: rgba(31, 41, 55, 0.12);
+    --tooltip-title: #1f2937;
+    --tooltip-body: #526173;
+    --toggle-text: var(--text);
+    --toggle-icon: "☾";
+    --serif:     'Playfair Display', Georgia, serif;
+    --sans:      'DM Sans', 'Segoe UI', sans-serif;
+    --mono:      'DM Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+
+  html[data-theme="dark"] {
+    --bg:        #0d0f12;
+    --bg2:       #141720;
+    --bg3:       #1c2030;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.13);
+    --text:      #e8e6df;
+    --muted:     #a0a6b2;
+    --faint:     #434958;
+    --shadow:    0 18px 36px rgba(0, 0, 0, 0.32);
+    --page-top:  rgba(74,158,255,0.08);
+    --page-start:#101318;
+    --page-end:  #0b0e13;
+    --hero-bg-start: rgba(22,25,34,0.92);
+    --hero-bg-end: rgba(14,17,24,0.94);
+    --hero-border: rgba(255,255,255,0.08);
+    --hero-blue-glow: rgba(74,158,255,0.10);
+    --hero-gold-glow: rgba(212,168,67,0.08);
+    --eyebrow:   #d4a843;
+    --control-bg: rgba(255,255,255,0.03);
+    --accent-blue-soft: rgba(74,158,255,0.10);
+    --accent-green-soft: rgba(112,197,66,0.10);
+    --accent-red-soft: rgba(232,92,74,0.10);
+    --card-shadow: 0 10px 22px rgba(0, 0, 0, 0.20);
+    --row-hover: rgba(255,255,255,0.03);
+    --scroll-track: rgba(255,255,255,0.04);
+    --neutral-badge-bg: rgba(255,255,255,0.05);
+    --chart-grid: rgba(255,255,255,0.05);
+    --chart-tick: #9aa2af;
+    --tooltip-bg: #1c2030;
+    --tooltip-border: rgba(255,255,255,0.10);
+    --tooltip-title: #e8e6df;
+    --tooltip-body: #a0a6b2;
+    --toggle-text: #e8e6df;
+    --toggle-icon: "☀";
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--bg);
+  }
+
+  body {
+    background:
+      radial-gradient(circle at top right, var(--page-top), transparent 28%),
+      linear-gradient(180deg, var(--page-start) 0%, var(--bg) 28%, var(--page-end) 100%);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ─── HERO ─────────────────────────────────────── */
+  .hero {
+    padding: 56px 40px 44px;
+    max-width: 900px;
+    margin: 18px auto 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--hero-bg-start), var(--hero-bg-end));
+    border: 1px solid var(--hero-border);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -80px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, var(--hero-blue-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    left: -110px;
+    bottom: -140px;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, var(--hero-gold-glow) 0%, transparent 72%);
+    pointer-events: none;
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--eyebrow);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 28px; height: 1px;
+    background: var(--eyebrow);
+  }
+
+  .theme-toggle {
+    min-height: 40px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--control-bg);
+    color: var(--toggle-text);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .theme-toggle:hover {
+    border-color: var(--border2);
+    background: var(--bg3);
+  }
+  .theme-toggle::before {
+    content: var(--toggle-icon);
+    margin-right: 8px;
+    font-size: 12px;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .hero h1 em { color: var(--gold); font-style: normal; }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.65;
+    margin-bottom: 28px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .hstat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 124px;
+  }
+  .hstat-val {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .hstat-val.up { color: var(--bull); }
+  .hstat-val.dn { color: var(--bear); }
+  .hstat-val.gold { color: var(--gold); }
+  .hstat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ─── MAIN LAYOUT ───────────────────────────────── */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 18px 40px 80px;
+  }
+
+  .section { margin-top: 56px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-head h2 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ─── CITY TABS ─────────────────────────────────── */
+  .tab-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--control-bg);
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+  }
+  .tab-btn:hover { border-color: var(--border2); color: var(--text); }
+  .tab-btn.active { background: var(--text); border-color: var(--text); color: #fff; }
+  .tab-btn.mk-active { border-color: var(--markham); color: #1c56a9; background: var(--accent-blue-soft); }
+  .tab-btn.rh-active { border-color: var(--rh); color: #3c7b15; background: var(--accent-green-soft); }
+
+  /* ─── CHART ─────────────────────────────────────── */
+  .chart-container {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    box-shadow: var(--shadow);
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .leg-item {
+    display: flex; align-items: center; gap: 7px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.15s;
+    user-select: none;
+  }
+  .leg-item:hover { color: var(--text); }
+  .leg-line {
+    width: 20px; height: 3px; border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .leg-bar {
+    width: 12px; height: 12px; border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .chart-wrap { position: relative; width: 100%; height: 380px; }
+
+  .chart-note {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ─── SCENARIO CONTROLS ─────────────────────────── */
+  .scenario-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0 16px;
+    flex-wrap: wrap;
+  }
+  .scenario-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  .sc-btn {
+    min-height: 44px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--control-bg);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .sc-btn:hover { border-color: var(--border2); color: var(--text); }
+  .sc-btn.sc-base.active { border-color: var(--base); color: #1c56a9; background: var(--accent-blue-soft); }
+  .sc-btn.sc-bull.active { border-color: var(--bull); color: #3c7b15; background: var(--accent-green-soft); }
+  .sc-btn.sc-bear.active { border-color: var(--bear); color: #b33a2d; background: var(--accent-red-soft); }
+  .sc-btn.sc-all.active  { border-color: var(--text); color: #fff; background: var(--text); }
+
+  /* ─── METRICS GRID ──────────────────────────────── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .metric-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+    box-shadow: var(--card-shadow);
+  }
+  .metric-card:hover { border-color: var(--border2); }
+  .mc-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .mc-val {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .mc-val.up { color: var(--bull); }
+  .mc-val.dn { color: var(--bear); }
+  .mc-val.gold { color: var(--gold); }
+  .mc-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ─── YEAR TABLE ─────────────────────────────────── */
+  .yr-table-wrap {
+    position: relative;
+    overflow-x: auto;
+    margin: 16px 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg2);
+    box-shadow: var(--shadow);
+  }
+  table.yr-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 680px;
+  }
+  .yr-table th {
+    text-align: left;
+    padding: 8px 12px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .yr-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    vertical-align: top;
+  }
+  .yr-table td:first-child { color: var(--text); font-weight: 500; }
+  .yr-table td.price { color: var(--text); font-family: var(--mono); font-size: 12px; }
+  .yr-table tr:last-child td { border-bottom: none; }
+  .yr-table tr:hover td { background: var(--row-hover); }
+  .chg-up { color: var(--bull); font-family: var(--mono); font-size: 12px; }
+  .chg-dn { color: var(--bear); font-family: var(--mono); font-size: 12px; }
+  .chg-flat { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .yr-note { font-size: 11px; color: var(--muted); }
+  .era-badge {
+    font-size: 9px;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  /* ─── VERDICT BOX ────────────────────────────────── */
+  .verdict-box {
+    border-radius: 8px;
+    border: 1px solid var(--faint);
+    padding: 18px 20px;
+    margin: 20px 0;
+    transition: border-color 0.3s;
+  }
+  .verdict-box.v-base { border-color: rgba(74,158,255,0.3); background: rgba(74,158,255,0.04); }
+  .verdict-box.v-bull { border-color: rgba(112,197,66,0.3); background: rgba(112,197,66,0.04); }
+  .verdict-box.v-bear { border-color: rgba(232,92,74,0.3); background: rgba(232,92,74,0.04); }
+  .vb-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .vb-label.v-base { color: var(--base); }
+  .vb-label.v-bull { color: var(--bull); }
+  .vb-label.v-bear { color: var(--bear); }
+  .vb-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .vb-text strong { color: var(--text); font-weight: 500; }
+
+  /* ─── CITY COMPARISON TABLE ─────────────────────── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .compare-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: var(--card-shadow);
+  }
+  .compare-card.mk { border-top: 2px solid var(--markham); }
+  .compare-card.rh { border-top: 2px solid var(--rh); }
+  .cc-city {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .cc-city.mk { color: var(--markham); }
+  .cc-city.rh { color: var(--rh); }
+  .cc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+  .cc-row:last-child { border-bottom: none; }
+  .cc-yr { font-size: 12px; color: var(--muted); }
+  .cc-price { font-family: var(--mono); font-size: 12px; color: var(--text); }
+  .cc-era { font-size: 10px; color: var(--faint); font-style: italic; }
+
+  /* ─── DRIVERS ────────────────────────────────────── */
+  .drivers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .driver-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+    box-shadow: var(--card-shadow);
+  }
+  .driver-card:hover { border-color: var(--border2); }
+  .driver-card.tail { border-left: 2px solid var(--bull); }
+  .driver-card.head { border-left: 2px solid var(--bear); }
+  .driver-card.neutral { border-left: 2px solid var(--gold); }
+  .d-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+  .d-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .d-badge.tail { background: rgba(112,197,66,0.12); color: var(--bull); }
+  .d-badge.head { background: rgba(232,92,74,0.12); color: var(--bear); }
+  .d-badge.neutral { background: rgba(212,168,67,0.12); color: var(--gold); }
+  .d-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .d-body {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ─── EVENTS TIMELINE ────────────────────────────── */
+  .events-list { display: flex; flex-direction: column; gap: 8px; margin: 16px 0; }
+  .event-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.18s;
+    box-shadow: var(--card-shadow);
+  }
+  .event-row:hover { border-color: var(--border2); }
+  .ev-yr {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding-top: 2px;
+    min-width: 72px;
+  }
+  .ev-badge {
+    font-size: 9px;
+    font-family: var(--mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .ev-text {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.55;
+    flex: 1;
+  }
+  .ev-text strong { color: var(--text); font-weight: 500; }
+
+  /* ─── SOURCE NOTE ────────────────────────────────── */
+  .source-note {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ─── SCROLLBAR ──────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--scroll-track); }
+  ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 3px; }
+
+  /* ─── RESPONSIVE ─────────────────────────────────── */
+  @media (max-width: 640px) {
+    .hero, .main { padding-left: 20px; padding-right: 20px; }
+    .hero {
+      margin-top: 10px;
+      padding-top: 32px;
+      padding-bottom: 32px;
+      border-radius: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 9vw, 38px);
+      margin-bottom: 12px;
+    }
+    .hero-top {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .theme-toggle {
+      align-self: flex-start;
+    }
+    .hero-sub {
+      font-size: 15px;
+      margin-bottom: 22px;
+    }
+    .main {
+      padding-top: 12px;
+      padding-bottom: 64px;
+    }
+    .section {
+      margin-top: 42px;
+    }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .drivers-grid, .compare-grid { grid-template-columns: 1fr; }
+    .chart-wrap { height: 320px; }
+    .yr-table th, .yr-table td { padding: 6px 8px; }
+    .hero-stats { gap: 16px; }
+    .tab-row, .scenario-bar { gap: 10px; }
+    .yr-table-wrap::after {
+      content: 'Swipe horizontally to view all columns';
+      display: block;
+      padding: 0 12px 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 18px;
+    }
+    .hstat:last-child {
+      grid-column: span 2;
+    }
+    .chart-container,
+    .metric-card,
+    .compare-card,
+    .driver-card,
+    .event-row {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+  }
+
+  /* ─── ANIM ───────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero > * { animation: fadeUp 0.55s ease both; }
+  .hero > *:nth-child(1) { animation-delay: 0.0s; }
+  .hero > *:nth-child(2) { animation-delay: 0.08s; }
+  .hero > *:nth-child(3) { animation-delay: 0.16s; }
+  .hero > *:nth-child(4) { animation-delay: 0.24s; }
+  .hero > *:nth-child(5) { animation-delay: 0.32s; }
+</style>
+</head>
+<body>
+
+<!-- ══════ HERO ══════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-top">
+    <div class="hero-eyebrow">York Region · Detached Homes · 30-Year Research Report</div>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">Dark Mode</button>
+  </div>
+  <h1>Markham &amp; <em>Richmond Hill</em><br>Housing Market Analysis</h1>
+  <p class="hero-sub">A data-driven examination of detached home prices from 1995 to 2030, covering the full cycle from quiet suburban growth through the pandemic explosion and into the current correction — with three forward scenarios.</p>
+  <div class="hero-stats">
+    <div class="hstat">
+      <span class="hstat-val">+264%</span>
+      <span class="hstat-label">Markham 20-yr gain</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val">+265%</span>
+      <span class="hstat-label">Richmond Hill 20-yr gain</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val dn">−23%</span>
+      <span class="hstat-label">Markham from 2022 peak</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val gold">$1.40M</span>
+      <span class="hstat-label">Markham avg (2025)</span>
+    </div>
+    <div class="hstat">
+      <span class="hstat-val gold">$1.57M</span>
+      <span class="hstat-label">Richmond Hill avg (2025)</span>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+
+  <!-- ══════ CHART ══════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>30-Year Price History &amp; Scenarios</h2>
+      <span class="section-tag">1995–2030</span>
+    </div>
+
+    <div class="tab-row" id="cityTabs">
+      <button class="tab-btn active" onclick="setCity('both', this)">Both Cities</button>
+      <button class="tab-btn" onclick="setCity('markham', this)">Markham</button>
+      <button class="tab-btn" onclick="setCity('rh', this)">Richmond Hill</button>
+      <button class="tab-btn" onclick="setCity('spread', this)">RH Premium</button>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-legend" id="chartLegend">
+        <span class="leg-item"><span class="leg-bar" style="background:rgba(74,158,255,0.4)"></span>Markham historical</span>
+        <span class="leg-item"><span class="leg-bar" style="background:rgba(112,197,66,0.4)"></span>Richmond Hill historical</span>
+        <span class="leg-item"><span class="leg-line" style="background:var(--base)"></span>Base forecast</span>
+        <span class="leg-item"><span class="leg-line" style="background:var(--bull);border-top:2px dashed var(--bull);height:0"></span>Bull</span>
+        <span class="leg-item"><span class="leg-line" style="background:var(--bear);border-top:2px dashed var(--bear);height:0"></span>Bear</span>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+      <p class="chart-note">Historical data: TRREB MLS® / listing.ca monthly records. Forecasts: scenarios based on CMHC (Jan 2026), RBC Economics, TD Economics, and York Region market analysis. Not financial advice.</p>
+    </div>
+  </section>
+
+  <!-- ══════ SCENARIOS ══════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Markham Detached — 5-Year Scenarios</h2>
+      <span class="section-tag">2026–2030</span>
+    </div>
+
+    <div class="scenario-bar">
+      <span class="scenario-label">Scenario:</span>
+      <button class="sc-btn sc-base active" onclick="setScenario('base', this)">Base Case</button>
+      <button class="sc-btn sc-bull" onclick="setScenario('bull', this)">Bull Case</button>
+      <button class="sc-btn sc-bear" onclick="setScenario('bear', this)">Bear Case</button>
+    </div>
+
+    <div class="metrics-grid" id="scenarioMetrics"></div>
+
+    <div class="yr-table-wrap">
+      <table class="yr-table" id="scenarioTable"></table>
+    </div>
+
+    <div id="scenarioVerdict"></div>
+  </section>
+
+  <!-- ══════ COMPARISON TABLE ═══════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Side-by-Side: Markham vs Richmond Hill</h2>
+      <span class="section-tag">Key years</span>
+    </div>
+    <div class="compare-grid" id="compareGrid"></div>
+  </section>
+
+  <!-- ══════ KEY EVENTS ══════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Market History — Key Turning Points</h2>
+      <span class="section-tag">1995–2026</span>
+    </div>
+    <div class="events-list" id="eventsList"></div>
+  </section>
+
+  <!-- ══════ DRIVERS ════════════════════════════════ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>Structural Drivers &amp; Headwinds</h2>
+      <span class="section-tag">Next 5 years</span>
+    </div>
+    <div class="drivers-grid" id="driversGrid"></div>
+  </section>
+
+  <!-- ══════ SOURCE NOTE ════════════════════════════ -->
+  <div class="source-note">
+    <strong>Data sources:</strong> Toronto Regional Real Estate Board (TRREB) MLS® annual statistics · listing.ca monthly sold records (Markham 2018–2026 verified) · CMHC Housing Market Outlook (Jan 2026) · RBC Economics Housing Forecast (Aug 2025) · TD Economics Provincial Housing Outlook (Mar 2026) · WOWA.ca Markham &amp; Richmond Hill market reports · REMAX York Region Outlook (Jan 2026) · Better Dwelling · Mortgage Sandbox · precondo.ca historical analysis. Pre-2005 data estimated from TRREB historic aggregate and York Region index benchmarks. All forecasts are scenarios, not financial advice. Compiled March 2026.
+  </div>
+
+</main>
+
+<script type="module">
+import { HIST_YEARS, MARKHAM_HIST, RH_HIST, SCENARIOS, COMPARE_ROWS, EVENTS, DRIVERS } from '/shared/data/markham-rh.js';
+import { buildChart } from '/shared/js/chart-utils.js';
+
+// ── STATE ────────────────────────────────────────────
+let currentCity = 'both';
+let currentScenario = 'base';
+let mainChart = null;
+let currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+
+function updateThemeButton() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  const nextTheme = currentTheme === 'dark' ? 'Light' : 'Dark';
+  btn.textContent = `${nextTheme} Mode`;
+  btn.setAttribute('aria-pressed', String(currentTheme === 'dark'));
+  btn.setAttribute('aria-label', `Switch to ${nextTheme.toLowerCase()} mode`);
+}
+
+function updateThemeMeta() {
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) {
+    themeMeta.setAttribute('content', currentTheme === 'dark' ? '#0d0f12' : '#f7f1e8');
+  }
+}
+
+function applyTheme(theme) {
+  currentTheme = theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = currentTheme;
+  try {
+    localStorage.setItem('housing-theme', currentTheme);
+  } catch (err) {}
+  updateThemeMeta();
+  updateThemeButton();
+  if (mainChart) {
+    buildMainChart();
+  }
+}
+
+// ── CHART BUILD ──────────────────────────────────────
+function buildMainChart() {
+  if (mainChart) { mainChart.destroy(); mainChart = null; }
+
+  const allLabels = HIST_YEARS.map(String).concat(['2026','2027','2028','2029','2030']);
+  const hLen = HIST_YEARS.length; // 31
+
+  const mkHistData = new Array(allLabels.length).fill(null);
+  MARKHAM_HIST.forEach((v,i) => mkHistData[i] = v);
+
+  const rhHistData = new Array(allLabels.length).fill(null);
+  RH_HIST.forEach((v,i) => rhHistData[i] = v);
+
+  const spreadData = new Array(allLabels.length).fill(null);
+  MARKHAM_HIST.forEach((v,i) => spreadData[i] = RH_HIST[i] - v);
+
+  function forecastLine(sc, city) {
+    const arr = new Array(allLabels.length).fill(null);
+    const prices = city === 'rh' ? SCENARIOS[sc].rh : SCENARIOS[sc].mk;
+    prices.forEach((p,i) => arr[hLen - 1 + i] = p);
+    return arr;
+  }
+
+  let datasets = [];
+
+  if (currentCity === 'spread') {
+    datasets = [{
+      type: 'bar',
+      label: 'RH premium over Markham',
+      data: spreadData,
+      backgroundColor: spreadData.map(v => v === null ? 'transparent' : v > 200000 ? 'rgba(232,92,74,0.5)' : 'rgba(74,158,255,0.35)'),
+      borderRadius: 2, borderSkipped: false, order: 2,
+    }];
+  } else {
+    if (currentCity === 'both' || currentCity === 'markham') {
+      datasets.push({
+        type: 'bar', label: 'Markham historical', data: mkHistData,
+        backgroundColor: 'rgba(74,158,255,0.35)', borderRadius: 2, borderSkipped: false, order: 3,
+      });
+    }
+    if (currentCity === 'both' || currentCity === 'rh') {
+      datasets.push({
+        type: 'bar', label: 'Richmond Hill historical', data: rhHistData,
+        backgroundColor: 'rgba(112,197,66,0.35)', borderRadius: 2, borderSkipped: false, order: 3,
+      });
+    }
+
+    const cities = currentCity === 'rh' ? ['rh'] : currentCity === 'markham' ? ['markham'] : ['markham','rh'];
+
+    cities.forEach(city => {
+      const col = city === 'rh' ? { base:'#70c542', bull:'#9ee46b', bear:'#d44e3a' } : { base:'#4a9eff', bull:'#70c542', bear:'#e85c4a' };
+      datasets.push({ type:'line', label:`${city==='rh'?'RH':'Markham'} base`, data: forecastLine('base', city),
+        borderColor: col.base, borderWidth: currentScenario==='base'?2.5:1, pointRadius: currentScenario==='base'?3:2,
+        backgroundColor:'transparent', tension:0.3, order:1, borderDash: currentScenario==='base'?[]:[6,4] });
+      datasets.push({ type:'line', label:`${city==='rh'?'RH':'Markham'} bull`, data: forecastLine('bull', city),
+        borderColor: col.bull, borderWidth: currentScenario==='bull'?2.5:1, pointRadius: currentScenario==='bull'?3:2,
+        backgroundColor:'transparent', tension:0.3, order:1, borderDash: currentScenario==='bull'?[]:[6,4] });
+      datasets.push({ type:'line', label:`${city==='rh'?'RH':'Markham'} bear`, data: forecastLine('bear', city),
+        borderColor: col.bear, borderWidth: currentScenario==='bear'?2.5:1, pointRadius: currentScenario==='bear'?3:2,
+        backgroundColor:'transparent', tension:0.3, order:1, borderDash: currentScenario==='bear'?[]:[6,4] });
+    });
+  }
+
+  mainChart = buildChart(document.getElementById('mainChart'), datasets, {
+    labels: allLabels,
+    scales: { y: { min: currentCity === 'spread' ? 0 : 100000 } }
+  });
+}
+
+// ── SCENARIO SECTION ─────────────────────────────────
+function buildScenarioSection(sc) {
+  const S = SCENARIOS[sc];
+
+  document.getElementById('scenarioMetrics').innerHTML = S.metrics.map(m => `
+    <div class="metric-card">
+      <div class="mc-label">${m.label}</div>
+      <div class="mc-val ${m.cls}">${m.val}</div>
+      <div class="mc-sub">${m.sub}</div>
+    </div>`).join('');
+
+  document.getElementById('scenarioTable').innerHTML = `
+    <thead><tr>
+      <th>Year</th>
+      <th>Markham avg</th>
+      <th>Richmond Hill avg</th>
+      <th>MK YoY</th>
+      <th>Phase</th>
+      <th>Key driver</th>
+    </tr></thead>
+    <tbody>${S.rows.map(r => `
+      <tr>
+        <td>${r.yr}</td>
+        <td class="price">${r.price}</td>
+        <td class="price" style="color:var(--rh)">${r.mk_rh}</td>
+        <td class="${r.cls === 'up' ? 'chg-up' : 'chg-dn'}">${r.chg}</td>
+        <td><span class="era-badge" style="background:rgba(31,41,55,0.06);color:var(--muted)">${r.era}</span></td>
+        <td class="yr-note">${r.note}</td>
+      </tr>`).join('')}
+    </tbody>`;
+
+  document.getElementById('scenarioVerdict').innerHTML = `
+    <div class="verdict-box ${S.cls}">
+      <div class="vb-label ${S.cls}">${S.label} — Analyst Verdict</div>
+      <div class="vb-text">${S.verdict}</div>
+    </div>`;
+}
+
+// ── COMPARE TABLE ─────────────────────────────────────
+function buildCompare() {
+  const mkRows = COMPARE_ROWS.map(r => `
+    <div class="cc-row">
+      <span class="cc-yr">${r.yr}</span>
+      <span class="cc-price">$${(r.mk/1000).toFixed(0)}K</span>
+      <span class="cc-era">${r.era}</span>
+    </div>`).join('');
+  const rhRows = COMPARE_ROWS.map(r => `
+    <div class="cc-row">
+      <span class="cc-yr">${r.yr}</span>
+      <span class="cc-price">$${(r.rh/1000).toFixed(0)}K</span>
+      <span class="cc-era">${r.era}</span>
+    </div>`).join('');
+  document.getElementById('compareGrid').innerHTML = `
+    <div class="compare-card mk">
+      <div class="cc-city mk">Markham — Detached avg</div>
+      ${mkRows}
+    </div>
+    <div class="compare-card rh">
+      <div class="cc-city rh">Richmond Hill — Detached avg</div>
+      ${rhRows}
+    </div>`;
+}
+
+// ── EVENTS ────────────────────────────────────────────
+function buildEvents() {
+  document.getElementById('eventsList').innerHTML = EVENTS.map(e => `
+    <div class="event-row">
+      <span class="ev-yr">${e.yr}</span>
+      <span class="ev-badge" style="background:${e.bg};color:${e.color}">${e.badge}</span>
+      <span class="ev-text">${e.text}</span>
+    </div>`).join('');
+}
+
+// ── DRIVERS ───────────────────────────────────────────
+function buildDrivers() {
+  document.getElementById('driversGrid').innerHTML = DRIVERS.map(d => `
+    <div class="driver-card ${d.type}">
+      <div class="d-head">
+        <span class="d-badge ${d.type}">${d.badge}</span>
+        <span class="d-title">${d.title}</span>
+      </div>
+      <div class="d-body">${d.body}</div>
+    </div>`).join('');
+}
+
+// ── INTERACTIONS ──────────────────────────────────────
+window.setCity = function(city, btn) {
+  currentCity = city;
+  document.querySelectorAll('#cityTabs .tab-btn').forEach(b => {
+    b.classList.remove('active','mk-active','rh-active');
+  });
+  if (city === 'markham') btn.classList.add('mk-active');
+  else if (city === 'rh') btn.classList.add('rh-active');
+  else btn.classList.add('active');
+  buildMainChart();
+};
+
+window.setScenario = function(sc, btn) {
+  currentScenario = sc;
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildScenarioSection(sc);
+  buildMainChart();
+};
+
+// ── INIT ──────────────────────────────────────────────
+buildMainChart();
+buildScenarioSection('base');
+buildCompare();
+buildEvents();
+buildDrivers();
+updateThemeMeta();
+updateThemeButton();
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+});
+
+window.addEventListener('load', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.error('Service worker registration failed:', err);
+    });
+  }
+});
+</script>
+</body>
+</html>
