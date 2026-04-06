@@ -1,13 +1,26 @@
-const CACHE_NAME = 'housing-analytics-v2';
+const CACHE_NAME = 'housing-analytics-v3';
 const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './vendor/chart.umd.js',
-  './icons/icon.svg',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  '/',
+  '/index.html',
+  '/cities/markham-rh/',
+  '/cities/markham-rh/index.html',
+  '/cities/hong-kong/',
+  '/cities/hong-kong/index.html',
+  '/cities/toronto/',
+  '/cities/toronto/index.html',
+  '/cities/vancouver/',
+  '/cities/vancouver/index.html',
+  '/cities/tokyo/',
+  '/cities/tokyo/index.html',
+  '/manifest.webmanifest',
+  '/vendor/chart.umd.js',
+  '/shared/js/chart-utils.js',
+  '/shared/data/markham-rh.js',
+  '/shared/data/hong-kong.js',
+  '/icons/icon.svg',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', event => {
