@@ -24,14 +24,24 @@ cities/<city-slug>/index.html     ← each city's full analytics page
 shared/js/chart-utils.js          ← Chart.js helpers (ES module)
 shared/data/<city-slug>.js        ← city data constants (ES module)
 vendor/chart.umd.js               ← Chart.js library (UMD, never modify)
-sw.js                             ← service worker (PWA, cache v2)
-vercel.json                       ← routing rules
+sw.js                             ← service worker (PWA, cache v3)
+vercel.json                       ← short-URL routes + cache headers
 ```
 
 - Chart.js is loaded via `<script src="/vendor/chart.umd.js">` before any modules
 - Shared modules are imported with **absolute paths** (`/shared/js/chart-utils.js`) so they work at any folder depth
 - City-specific state (`currentDistrict`, `currentScenario`) lives in each city page, not in shared utils
 - `window.setDistrict` / `window.setScenario` must be assigned explicitly (not just declared) because they are called from inline `onclick` attributes in HTML
+
+## Nav Bar
+
+Every page has a sticky nav bar (52px tall, `z-index: 100`). The nav CSS and `--nav-bg` CSS variable are inlined in each page's `<style>` block — there is no shared nav file.
+
+- Hamburger collapses at 768px via `.nav-links.open` toggle
+- Current page link gets `class="active"` (gold highlight)
+- Brand link always points to `/`
+- All hrefs use absolute paths: `/cities/markham-rh/`, `/cities/hong-kong/`, etc.
+- The hamburger JS (`navHamburger` / `navLinks`) is at the bottom of each page's `<script>` block
 
 ## Design System — DO NOT CHANGE
 
@@ -54,8 +64,9 @@ vercel.json                       ← routing rules
 1. Create `cities/<city-slug>/index.html` — copy the closest existing live page as template
 2. Create `shared/data/<city-slug>.js` — city data modules are city-specific in structure; use an existing data file as a reference
 3. Add a city card to `index.html` (the landing page) city grid
-4. Add the new page URLs to `sw.js` `APP_SHELL` array if you want them pre-cached
-5. Add a route to `vercel.json`
+4. Add a `<li>` link to the `nav-links` list in **every** page's nav bar (6 files total)
+5. Add the new page URLs to `sw.js` `APP_SHELL` array and bump `CACHE_NAME` version
+6. Add a short-URL route to `vercel.json`
 
 ## Data Module Notes
 
