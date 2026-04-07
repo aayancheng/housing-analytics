@@ -97,6 +97,6 @@ One city page or feature per commit. Never commit `vendor/` changes. Never commi
 |------|--------|-------------|
 | Markham & Richmond Hill | Live | TRREB, CMHC, listing.ca |
 | Hong Kong | Live | RVD, Centaline CCL, Demographia |
+| Tokyo | Live | Tokyo Kantei, MLIT, Demographia, NUMBEO |
 | Toronto | Stub | — |
 | Vancouver | Stub | — |
-| Tokyo | Stub | — |

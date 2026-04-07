@@ -12,9 +12,9 @@ Data-driven housing market research across global cities. Thirty years of price 
 |------|--------|----------|
 | Markham & Richmond Hill | Live | Detached homes, 1995–2030 |
 | Hong Kong | Live | Class B apartments, 1994–2030 |
+| Tokyo | Live | Resale condos (50 sqm), 1995–2030 |
 | Toronto | In progress | — |
 | Vancouver | In progress | — |
-| Tokyo | In progress | — |
 
 ---
 
@@ -49,11 +49,14 @@ cities/
   hong-kong/index.html        ← Hong Kong report
   toronto/index.html          ← stub
   vancouver/index.html        ← stub
-  tokyo/index.html            ← stub
+  tokyo/index.html            ← Tokyo report
+  toronto/index.html          ← stub
+  vancouver/index.html        ← stub
 shared/
   js/chart-utils.js           ← Chart.js helpers (ES module)
   data/markham-rh.js          ← Markham & RH data constants
   data/hong-kong.js           ← Hong Kong data constants
+  data/tokyo.js               ← Tokyo data constants
 vendor/
   chart.umd.js                ← Chart.js (do not modify)
 sw.js                         ← service worker (PWA)
@@ -68,6 +71,7 @@ vercel.json                   ← routing
 |--------|---------|
 | Markham & Richmond Hill | TRREB, CMHC, listing.ca |
 | Hong Kong | RVD Private Domestic Price Index, Centaline CCL, Demographia International Housing Affordability Survey |
+| Tokyo | Tokyo Kantei resale condo index, MLIT 土地総合情報システム, Demographia, NUMBEO |
 
 All forecasts are scenarios, not financial advice.
 
