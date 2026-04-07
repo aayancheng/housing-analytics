@@ -1,4 +1,4 @@
-const CACHE_NAME = 'housing-analytics-v3';
+const CACHE_NAME = 'housing-analytics-v4';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -17,6 +17,7 @@ const APP_SHELL = [
   '/shared/js/chart-utils.js',
   '/shared/data/markham-rh.js',
   '/shared/data/hong-kong.js',
+  '/shared/data/tokyo.js',
   '/icons/icon.svg',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
